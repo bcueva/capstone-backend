@@ -17,4 +17,16 @@ export class ProductsModel extends BaseModel {
     const rows = await executeQuery(query, [`%${search}%`, `%${search}%`]);
     return rows;
   }
+
+  async create ({ input }) {
+    input.code = Date.now().toString()
+    const keys = Object.keys(input).join(', ')
+    const placeholders = Object.keys(input).map(() => '?').join(', ')
+    const values = Object.values(input)
+
+    const query = `INSERT INTO ${this.tableName} (${keys}) VALUES (${placeholders})`
+    const result = await executeQuery(query, values)
+
+    return this.getById({ id: result.insertId })
+  }
 }
