@@ -1,0 +1,13 @@
+GET http://localhost:3000/api/v1/roles
+###
+
+POST http://localhost:3000/api/v1/roles/
+Content-Type: application/json
+
+{
+  "uuid": "111d",
+  "name": "Brahyan",
+  "last_name": "Cueva",
+  "email": "bcueva@gmail.com",
+  "password": "1234a"
+}

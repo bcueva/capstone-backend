@@ -1,0 +1,8 @@
+GET http://localhost:3000/api/v1/dashboard/getMonthlySales
+###
+
+GET http://localhost:3000/api/v1/dashboard/getCumulativeSales
+###
+
+GET http://localhost:3000/api/v1/dashboard/getDistributionProducts
+###
