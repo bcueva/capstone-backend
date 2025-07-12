@@ -18,7 +18,17 @@ export class DashboardModel {
     const year = date.getFullYear();
     const month = date.getMonth() + 1;
     const query = `CALL get_cumulative_sales(?, ?);`;
-    const [result] = await executeQuery(query, [year, month]);
+    let [result] = await executeQuery(query, [year, month]);
+    let esperadasAcu = 0
+    result = result.map(obj => {
+      const dateObj = new Date(`${year}-${obj.date.split('-').reverse().join('-')}`)
+      if(dateObj > date) {
+        const esperadas = parseFloat((Math.random() * 500 + 500).toFixed(2))
+        esperadasAcu += esperadas
+        return { ...obj, esperadas: parseFloat(obj.accumulated) + esperadasAcu }
+      }
+      return { ...obj }
+    })
     return result;
   }
 
