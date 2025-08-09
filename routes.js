@@ -8,6 +8,7 @@ import contactsRouter from './src/contacts/routes.js'
 import salesRouter from './src/sales/routes.js'
 import loginRouter from './src/login/routes.js'
 import dashboardRouter from './src/dashboard/routes.js'
+import tablesRouter from './src/tables/routes.js'
 
 const router = Router()
 
@@ -18,6 +19,7 @@ router.use('/roles', rolesRouter)
 router.use('/permissions', permissionsRouter)
 router.use('/companies', companiesRouter)
 router.use('/contacts', contactsRouter)
+router.use('/tables', tablesRouter)
 router.use('/sales', salesRouter)
 router.use('/dashboard', dashboardRouter)
 

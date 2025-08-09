@@ -1,9 +1,7 @@
 import z from 'zod'
 
 const saleSchema = z.object({
-  companyRuc: z.string().min(1, {
-    required_error: 'Company RUC is required.'
-  }),
+  companyRuc: z.string().default('20123456789'),
   userId: z.number().min(1, {
     required_error: 'User is required.'
   }),

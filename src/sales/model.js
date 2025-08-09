@@ -55,10 +55,10 @@ export class SalesModel extends BaseModel {
 
     try {
       for (const detail of details) {
-        const { id, quantity, price } = detail;
+        const { id, quantity, price, observation } = detail;
         await connection.query(
-          "INSERT INTO sale_detail (sale_id, price, quantity, product_id) VALUES (?, ?, ?, ?);",
-          [sale.id, price, quantity, id]
+          "INSERT INTO sale_detail (sale_id, price, quantity, observation, product_id) VALUES (?, ?, ?, ?, ?);",
+          [sale.id, price, quantity, observation, id]
         );
       }
     } finally {
