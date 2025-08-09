@@ -7,10 +7,11 @@ export class SalesModel extends BaseModel {
   }
 
   async getAll() {
-    const query = `SELECT *, c.name as company_name
+    const query = `SELECT s.*, CONCAT_WS(' ', u.name, u.last_name) as name, c.name as company_name
       FROM sale AS s
       LEFT JOIN company AS c ON c.id = s.company_id
-      LEFT JOIN user AS u ON u.id = s.user_id`;
+      LEFT JOIN user AS u ON u.id = s.user_id
+      WHERE is_deleted = 0`;
     const sales = await executeQuery(query);
     sales.forEach((sale) => {
       sale.permissions = sale.permissions?.split(",").reduce((obj, item) => {
@@ -68,45 +69,45 @@ export class SalesModel extends BaseModel {
     return this.getById({ id: sale.id });
   }
 
-  async update({ id, input }) {
-    const { permissions, ...inputItemType } = input;
-    const sale = await super.update({ id, input: inputItemType });
-    const connection = await getConnection();
+  // async update({ id, input }) {
+  //   const { permissions, ...inputItemType } = input;
+  //   const sale = await super.update({ id, input: inputItemType });
+  //   const connection = await getConnection();
 
-    if (permissions) {
-      const activePermissionIds = Object.keys(permissions).filter(
-        (key) => permissions[key]
-      );
+  //   if (permissions) {
+  //     const activePermissionIds = Object.keys(permissions).filter(
+  //       (key) => permissions[key]
+  //     );
 
-      const desactivePermissionIds = Object.keys(permissions).filter(
-        (key) => !permissions[key]
-      );
+  //     const desactivePermissionIds = Object.keys(permissions).filter(
+  //       (key) => !permissions[key]
+  //     );
 
-      try {
-        for (const permissionId of activePermissionIds) {
-          await connection.query(
-            "INSERT IGNORE INTO sale_permission (sale_id, permission_id) VALUES (?, ?);",
-            [id, permissionId]
-          );
-        }
+  //     try {
+  //       for (const permissionId of activePermissionIds) {
+  //         await connection.query(
+  //           "INSERT IGNORE INTO sale_permission (sale_id, permission_id) VALUES (?, ?);",
+  //           [id, permissionId]
+  //         );
+  //       }
 
-        for (const permissionId of desactivePermissionIds) {
-          await connection.query(
-            "DELETE FROM sale_permission WHERE sale_id = ? AND permission_id = ?;",
-            [id, permissionId]
-          );
-        }
-      } finally {
-        connection.release();
-      }
-    }
+  //       for (const permissionId of desactivePermissionIds) {
+  //         await connection.query(
+  //           "DELETE FROM sale_permission WHERE sale_id = ? AND permission_id = ?;",
+  //           [id, permissionId]
+  //         );
+  //       }
+  //     } finally {
+  //       connection.release();
+  //     }
+  //   }
 
-    return this.getById({ id: sale.id });
-  }
+  //   return this.getById({ id: sale.id });
+  // }
 
   async delete({ id }) {
-    const query = "DELETE FROM sale WHERE id = ?;";
-    const result = await executeQuery(query, [id]);
-    return result.affectedRows > 0;
+    const query = `UPDATE ${this.tableName} SET is_deleted = TRUE WHERE id = ?`
+    const result = await executeQuery(query, [id])
+    return result.affectedRows > 0
   }
 }

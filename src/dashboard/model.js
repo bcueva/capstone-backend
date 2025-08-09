@@ -36,7 +36,7 @@ export class DashboardModel {
     const year = date.getFullYear();
     const query = `SELECT p.name AS product, SUM(sd.quantity) AS quantity
       FROM sale_detail sd
-      INNER JOIN sale s ON sd.sale_id = s.id
+      INNER JOIN sale s ON sd.sale_id = s.id AND s.is_deleted = FALSE
       INNER JOIN product p ON sd.product_id = p.id
       WHERE YEAR(s.date) = ?
       GROUP BY p.name
