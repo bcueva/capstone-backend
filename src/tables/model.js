@@ -9,7 +9,7 @@ export class TablesModel extends BaseModel {
   async getAll() {
     const query = `SELECT t.*, s.id AS sale_id
         FROM tables AS t
-        LEFT JOIN sale AS s ON s.table_id = t.id AND t.is_available = FALSE`;
+        LEFT JOIN sale AS s ON s.table_id = t.id AND t.is_available = FALSE AND s.paid = FALSE`;
     const tables = await executeQuery(query);
     return tables;
   }
