@@ -71,7 +71,7 @@ export class SalesModel extends BaseModel {
         const { id, quantity, price, observation } = detail;
         await connection.query(
           "INSERT INTO sale_detail (sale_id, price, quantity, observation, product_id) VALUES (?, ?, ?, ?, ?);",
-          [sale.id, price, quantity, observation, id]
+          [saleId, price, quantity, observation, id]
         );
       }
     } finally {
@@ -100,6 +100,7 @@ export class SalesModel extends BaseModel {
     await connection.query("DELETE FROM sale_detail WHERE sale_id = ?;", [saleId]);
     if(endSale) {
       await connection.query("UPDATE tables SET is_available = TRUE WHERE id = ?;", [tableId]);
+      await connection.query("UPDATE sale SET paid = TRUE WHERE id = ?;", [saleId]);
     }
 
     try {
