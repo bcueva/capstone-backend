@@ -5,6 +5,7 @@ const tablesRouter = Router()
 const tablesController = new TablesController()
 
 tablesRouter.get('/', tablesController.getAll)
+tablesRouter.get('/availables', tablesController.getAllAvailables)
 tablesRouter.post('/', tablesController.create)
 tablesRouter.get('/:id', tablesController.getById)
 tablesRouter.patch('/:id', tablesController.update)

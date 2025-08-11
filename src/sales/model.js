@@ -24,14 +24,20 @@ export class SalesModel extends BaseModel {
 
   async getById({ id }) {
     const sale = await super.getById({ id: id });
-    const query = `SELECT * FROM sale_detail WHERE sale_id = ?`;
+    const query = `SELECT * FROM sale_detail sd
+      INNER JOIN product p ON p.id = sd.product_id
+      WHERE sale_id = ?`;
     sale.details = await executeQuery(query, [id]);
-    
+    sale.table = await executeQuery(
+      "SELECT id, number FROM tables WHERE id = ?",
+      [sale.table_id]
+    );
+
     return sale;
   }
 
   async create({ input }) {
-    const { companyRuc, userId, details } = input;
+    const { companyRuc, userId, tableId, details } = input;
     const connection = await getConnection();
 
     const [[company]] = await connection.execute(
@@ -51,8 +57,14 @@ export class SalesModel extends BaseModel {
       amount: total,
       user_id: userId,
       company_id: company.id,
+      table_id: tableId,
     };
     const sale = await super.create({ input: saleData });
+
+    await connection.execute(
+      "UPDATE tables SET is_available = FALSE WHERE id = ?",
+      [tableId]
+    );
 
     try {
       for (const detail of details) {
@@ -69,45 +81,45 @@ export class SalesModel extends BaseModel {
     return this.getById({ id: sale.id });
   }
 
-  // async update({ id, input }) {
-  //   const { permissions, ...inputItemType } = input;
-  //   const sale = await super.update({ id, input: inputItemType });
-  //   const connection = await getConnection();
+  async update({ id: saleId, input }) {
+    const { details, endSale, tableId } = input;
+    const connection = await getConnection();
 
-  //   if (permissions) {
-  //     const activePermissionIds = Object.keys(permissions).filter(
-  //       (key) => permissions[key]
-  //     );
+    let total = details.reduce(
+      (total, { price, quantity }) => total + price * quantity,
+      0
+    );
 
-  //     const desactivePermissionIds = Object.keys(permissions).filter(
-  //       (key) => !permissions[key]
-  //     );
+    total = parseFloat(total.toFixed(2));
 
-  //     try {
-  //       for (const permissionId of activePermissionIds) {
-  //         await connection.query(
-  //           "INSERT IGNORE INTO sale_permission (sale_id, permission_id) VALUES (?, ?);",
-  //           [id, permissionId]
-  //         );
-  //       }
+    const saleData = {
+      date: new Date(),
+      amount: total,
+    };
+    await super.update({ id: saleId, input: saleData });
+    await connection.query("DELETE FROM sale_detail WHERE sale_id = ?;", [saleId]);
+    if(endSale) {
+      await connection.query("UPDATE tables SET is_available = TRUE WHERE id = ?;", [tableId]);
+    }
 
-  //       for (const permissionId of desactivePermissionIds) {
-  //         await connection.query(
-  //           "DELETE FROM sale_permission WHERE sale_id = ? AND permission_id = ?;",
-  //           [id, permissionId]
-  //         );
-  //       }
-  //     } finally {
-  //       connection.release();
-  //     }
-  //   }
+    try {
+      for (const detail of details) {
+        const { id, quantity, price, observation } = detail;
+        await connection.query(
+          "INSERT INTO sale_detail (sale_id, price, quantity, observation, product_id) VALUES (?, ?, ?, ?, ?);",
+          [saleId, price, quantity, observation, id]
+        );
+      }
+    } finally {
+      connection.release();
+    }
 
-  //   return this.getById({ id: sale.id });
-  // }
+    return this.getById({ id: saleId });
+  }
 
   async delete({ id }) {
-    const query = `UPDATE ${this.tableName} SET is_deleted = TRUE WHERE id = ?`
-    const result = await executeQuery(query, [id])
-    return result.affectedRows > 0
+    const query = `UPDATE ${this.tableName} SET is_deleted = TRUE WHERE id = ?`;
+    const result = await executeQuery(query, [id]);
+    return result.affectedRows > 0;
   }
 }

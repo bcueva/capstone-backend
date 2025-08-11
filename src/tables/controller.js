@@ -24,4 +24,13 @@ export class TablesController extends BaseController {
       next(err)
     }
   }
+
+  getAllAvailables = async (req, res, next) => {
+    try {
+      const data = await this.model.getAllAvailables(req.query)
+      return res.status(200).json({ status: 'success', data })
+    } catch (err) {
+      next(err)
+    }
+  }
 }

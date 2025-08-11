@@ -5,7 +5,11 @@ const saleSchema = z.object({
   userId: z.number().min(1, {
     required_error: 'User is required.'
   }),
-  details: z.array(z.any()).default([])
+  tableId: z.number().min(1, {
+    required_error: 'Table id is required.'
+  }),
+  details: z.array(z.any()).default([]),
+  endSale: z.boolean().default(false)
 })
 
 export function validateSale (input) {
