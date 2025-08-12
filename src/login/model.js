@@ -7,6 +7,8 @@ export class LoginModel {
     let query = `SELECT id, name, last_name, email, role_id FROM user WHERE LOWER(email) = LOWER(?) AND password = ? LIMIT 1`;
     const [user] = await executeQuery(query, [email, password]);
 
+    if (!user) throw 'Forbbiden'
+
     query = `SELECT p.* FROM permission p
     LEFT JOIN role_permission rp on rp.permission_id = p.id
     WHERE rp.role_id = ?`;
