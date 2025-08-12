@@ -71,7 +71,7 @@ export class SalesModel extends BaseModel {
         const { id, quantity, price, observation } = detail;
         await connection.query(
           "INSERT INTO sale_detail (sale_id, price, quantity, observation, product_id) VALUES (?, ?, ?, ?, ?);",
-          [saleId, price, quantity, observation, id]
+          [sale.id, price, quantity, observation, id]
         );
       }
     } finally {
