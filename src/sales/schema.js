@@ -5,7 +5,7 @@ const saleSchema = z.object({
   userId: z.number().min(1, {
     required_error: 'User is required.'
   }),
-  tableId: z.number().min(1, {
+  tableId: z.string().min(1, {
     required_error: 'Table id is required.'
   }),
   details: z.array(z.any()).default([]),
