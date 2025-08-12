@@ -9,6 +9,7 @@ const saleSchema = z.object({
     required_error: 'Table id is required.'
   }),
   details: z.array(z.any()).default([]),
+  payType: z.string().default('Efectivo'),
   endSale: z.boolean().default(false)
 })
 

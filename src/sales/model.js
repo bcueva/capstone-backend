@@ -37,7 +37,7 @@ export class SalesModel extends BaseModel {
   }
 
   async create({ input }) {
-    const { companyRuc, userId, tableId, details } = input;
+    const { companyRuc, userId, tableId, payType, details } = input;
     const connection = await getConnection();
 
     const [[company]] = await connection.execute(
@@ -58,6 +58,7 @@ export class SalesModel extends BaseModel {
       user_id: userId,
       company_id: company.id,
       table_id: tableId,
+      pay_type: payType
     };
     const sale = await super.create({ input: saleData });
 
@@ -82,7 +83,7 @@ export class SalesModel extends BaseModel {
   }
 
   async update({ id: saleId, input }) {
-    const { details, endSale, tableId } = input;
+    const { details, endSale, payType, tableId } = input;
     const connection = await getConnection();
 
     let total = details.reduce(
@@ -95,6 +96,7 @@ export class SalesModel extends BaseModel {
     const saleData = {
       date: new Date(),
       amount: total,
+      pay_type: payType
     };
     await super.update({ id: saleId, input: saleData });
     await connection.query("DELETE FROM sale_detail WHERE sale_id = ?;", [saleId]);
